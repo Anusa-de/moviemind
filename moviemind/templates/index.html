@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MovieMind - Your Personal Film Curator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0d0d0d;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Cinematic background with film imagery */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(rgba(13, 13, 13, 0.8), rgba(13, 13, 13, 0.9)),
+                url('https://images.unsplash.com/photo-1489599037630-07c4e4773e37?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header with hero image */
+        .header {
+            padding: 60px 0 40px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: 0;
+            width: 300px;
+            height: 200px;
+            background: url('https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .logo {
+            font-size: 42px;
+            font-weight: 700;
+            color: #ff4757;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #ccc;
+            font-weight: 400;
+            max-width: 500px;
+        }
+
+        /* Navigation */
+        .nav {
+            display: flex;
+            gap: 0;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #222;
+        }
+
+        .nav-item {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item:hover {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item.active {
+            color: #ff4757;
+            border-bottom-color: #ff4757;
+        }
+
+        /* Tab content */
+        .tab {
+            display: none;
+        }
+
+        .tab.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search section with cinema ambiance */
+        .search-section {
+            background: linear-gradient(135deg, rgba(17,17,17,0.95) 0%, rgba(34,34,34,0.95) 100%);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1585951237318-9ea5e175b891?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+            border-radius: 0 16px 16px 0;
+        }
+
+        .search-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-subtitle {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 18px;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #ff4757;
+        }
+
+        .search-input::placeholder {
+            color: #555;
+        }
+
+        .search-btn {
+            padding: 14px 28px;
+            background: #ff4757;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .search-btn:hover {
+            background: #ff3742;
+        }
+
+        .alt-search {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .alt-search a {
+            color: #ff4757;
+            text-decoration: none;
+        }
+
+        .alt-search a:hover {
+            text-decoration: underline;
+        }
+
+        /* Results sections */
+        .results-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .section-count {
+            background: #333;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Movie grid */
+        .movie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Movie card with poster placeholders */
+        .movie-card {
+            background: linear-gradient(135deg, #111 0%, #1a1a1a 100%);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .movie-card:hover {
+            border-color: #ff4757;
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255, 71, 87, 0.2);
+        }
+
+        /* .movie-poster {
+            width: 100%;
+            height: 270px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 1px solid #333;
+        } */
+        .movie-poster {
+            width: 100px;
+            height: 150px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .movie-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+        }
+
+
+
+
+        .movie-poster::before {
+            display: none;
+            /* content: '🎬';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            opacity: 0.6; */
+        }
+
+        .movie-info {
+            padding: 20px;
+        }
+
+        .movie-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            color: #fff;
+        }
+
+        .movie-meta {
+            font-size: 13px;
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .correlation {
+            color: #ff4757;
+            font-weight: 500;
+        }
+
+        /* About section */
+        .about-content {
+            max-width: 800px;
+        }
+
+        .about-intro {
+            font-size: 18px;
+            color: #ccc;
+            margin-bottom: 32px;
+            line-height: 1.7;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .about-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .about-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ff4757;
+        }
+
+        .about-card p {
+            font-size: 14px;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        /* Model evaluation */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff4757;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Demo section */
+        .demo-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .demo-card {
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .demo-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .demo-list {
+            list-style: none;
+        }
+
+        .demo-list li {
+            padding: 8px 0;
+            color: #aaa;
+            font-size: 14px;
+            border-bottom: 1px solid #222;
+        }
+
+        .demo-list li:last-child {
+            border-bottom: none;
+        }
+
+        .demo-btn {
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 6px;
+            color: #fff;
+            padding: 8px 16px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s ease;
+        }
+
+        .demo-btn:hover {
+            background: #444;
+        }
+
+        /* Loading state */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        /* Featured movies carousel */
+        .featured-section {
+            margin-bottom: 40px;
+            overflow: hidden;
+        }
+
+        .featured-movies {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .featured-movies::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .featured-movies::-webkit-scrollbar-track {
+            background: #222;
+            border-radius: 3px;
+        }
+
+        .featured-movies::-webkit-scrollbar-thumb {
+            background: #ff4757;
+            border-radius: 3px;
+        }
+
+        .featured-card {
+            min-width: 300px;
+            height: 180px;
+            background: linear-gradient(45deg, #ff4757, #ff6b6b);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .featured-card:hover {
+            transform: scale(1.05);
+        }
+
+        .featured-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+        }
+
+        .featured-content {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 2;
+        }
+
+        .featured-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .featured-desc {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+            .container {
+                padding: 0 16px;
+            }
+            
+            .nav {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+                padding: 16px 20px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">MovieMind</div>
+            <div class="tagline">Smart recommendations for film enthusiasts</div>
+        </header>
+
+        <nav class="nav">
+            <button class="nav-item active" onclick="switchTab('discover')">Discover</button>
+            <button class="nav-item" onclick="switchTab('about')">About</button>
+            <button class="nav-item" onclick="switchTab('model')">Technical</button>
+            <button class="nav-item" onclick="switchTab('demo')">Examples</button>
+        </nav>
+
+        <!-- Discover Tab -->
+        <div id="discover" class="tab active">
+            <!-- Featured Movies Section -->
+            <div class="featured-section">
+                <div class="section-header">
+                    <h2 class="section-title">Featured This Week</h2>
+                </div>
+                <div class="featured-movies">
+                    <div class="featured-card" onclick="searchDemo('The Shawshank Redemption')" 
+                         style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1616530940355-351fabd9524b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover;">
+                        <div class="featured-content">
+                            <div class="featured-title">The Shawshank Redemption</div>
+                            <div class="featured-desc">Hope is a good thing, maybe the best of things</div>
+                        </div>
+                    </div>
+                    <div class="featured-card" onclick="searchDemo('Pulp Fiction')"
+                         style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover;">
+                        <div class="featured-content">
+                            <div class="featured-title">Pulp Fiction</div>
+                            <div class="featured-desc">The path of the righteous man</div>
+                        </div>
+                    </div>
+                    <div class="featured-card" onclick="searchDemo('The Dark Knight')"
+                         style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover;">
+                        <div class="featured-content">
+                            <div class="featured-title">The Dark Knight</div>
+                            <div class="featured-desc">Why so serious?</div>
+                        </div>
+                    </div>
+                    <div class="featured-card" onclick="searchDemo('Inception')"
+                         style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1440404653325-ab127d49abc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover;">
+                        <div class="featured-content">
+                            <div class="featured-title">Inception</div>
+                            <div class="featured-desc">Your mind is the scene of the crime</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="search-section">
+                <h2 class="search-title">Find Your Next Favorite Film</h2>
+                <p class="search-subtitle">Enter a movie you loved and discover similar films curated just for you</p>
+                <div class="search-form">
+                    <input type="text" id="movie-input" class="search-input" placeholder="Enter a movie you enjoyed...">
+                    <button class="search-btn" onclick="getRecommendations()">Get Recommendations</button>
+                </div>
+                <div class="alt-search">
+                    or <a href="/rate5">rate 5 movies</a> for personalized recommendations
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <p>Analyzing your taste...</p>
+            </div>
+
+            <div class="results-section" id="recommendations-section" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Perfect Matches</h2>
+                    <span class="section-count" id="rec-count">0</span>
+                </div>
+                <div class="movie-grid" id="recommendation-list"></div>
+            </div>
+
+            <div class="results-section">
+                <div class="section-header">
+                    <h2 class="section-title">Popular Right Now</h2>
+                    <span class="section-count" id="popular-count">0</span>
+                </div>
+                <div class="movie-grid" id="popular-movies-list"></div>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about" class="tab">
+            <div class="about-content">
+                <p class="about-intro">
+                    I am Anusa De,a final year B.Tech student at KIIT Bhubaneswar from the department of Computer Science and Engineering.I built MovieMind because I was tired of scrolling endlessly through streaming platforms. 
+                    As someone who watches way too many films, I wanted a system that actually understands taste - 
+                    not just genre preferences, but the subtle connections between movies that make you think 
+                    "if you liked that, you'll love this."
+                </p>
+
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>The Problem</h3>
+                        <p>Most recommendation engines are terrible. They suggest popular movies or stick to obvious genres. Real movie discovery happens through word-of-mouth and personal curation.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>My Approach</h3>
+                        <p>I use collaborative filtering to find users with similar taste patterns, then surface movies they loved that you haven't seen yet. It's like having a friend with great taste.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>Why It Works</h3>
+                        <p>The system learns from actual viewing patterns and ratings, not marketing data. It finds connections human curators would make, not algorithmic shortcuts.</p>
+                    </div>
+
+                    <div class="about-card">
+                        <h3>Continuous Learning</h3>
+                        <p>Every interaction improves the model. The more people use it, the better it gets at finding those hidden gems and perfect matches.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Tab -->
+        <div id="model" class="tab">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">3.13</div>
+                    <div class="metric-label">User-based CF RMSE
+                        </div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">3.4</div>
+                    <div class="metric-label">Item-based CF RMSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">2.7</div>
+                    <div class="metric-label">User-based CF MSE</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">100K+</div>
+                    <div class="metric-label">Ratings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">9K+</div>
+                    <div class="metric-label">Movies</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">~200ms</div>
+                    <div class="metric-label">Response Time</div>
+                </div>
+                
+            </div>
+
+            <div class="about-grid">
+                <div class="about-card" style="grid-column: span 2;">
+                    <h3>Model Notebook</h3>
+                    <p>Explore the notebook used for training and evaluation:</p>
+                    <div style="position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; box-shadow: 0 0 20px rgba(0,255,255,0.1);">
+                      <iframe src="/static/notebook.pdf" style="position: absolute; top:0; left:0; width:100%; height:100%; border: none;" allowfullscreen></iframe>
+                    </div>
+                  </div>
+                  
+                <!-- <div class="about-card">
+                    <h3>Algorithm</h3>
+                    <p>User-item collaborative filtering with Pearson correlation. Matrix factorization for dimensionality reduction and faster computation.</p>
+                </div>
+
+                <div class="about-card">
+                    <h3>Dataset</h3>
+                    <p>MovieLens 100K dataset with additional preprocessing. Handles cold start problems and sparse ratings through smart defaults.</p>
+                </div>
+
+                <div class="about-card">
+                    <h3>Validation</h3>
+                    <p>80-20 train-test split with cross-validation. Evaluated on precision, recall, and user satisfaction metrics from A/B tests.</p>
+                </div>
+
+                <div class="about-card">
+                    <h3>Infrastructure</h3>
+                    <p>Python backend with Flask, NumPy for computation, and Redis for caching. Handles 1000+ concurrent users with sub-second response times.</p>
+                </div>
+            </div>
+        </div> -->
+
+        <!-- Demo Tab -->
+        <div id="demo" class="tab">
+            <div class="demo-examples">
+                <div class="demo-card">
+                    <h3>Try These Popular Movies</h3>
+                    <ul class="demo-list">
+                        <li>The Shawshank Redemption <button class="demo-btn" onclick="searchDemo('The Shawshank Redemption')">Try</button></li>
+                        <li>Pulp Fiction <button class="demo-btn" onclick="searchDemo('Pulp Fiction')">Try</button></li>
+                        <li>The Dark Knight <button class="demo-btn" onclick="searchDemo('The Dark Knight')">Try</button></li>
+                        <li>Inception <button class="demo-btn" onclick="searchDemo('Inception')">Try</button></li>
+                    </ul>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Indie & Art House</h3>
+                    <ul class="demo-list">
+                        <li>Lost in Translation <button class="demo-btn" onclick="searchDemo('Lost in Translation')">Try</button></li>
+                        <li>Her <button class="demo-btn" onclick="searchDemo('Her')">Try</button></li>
+                        <li>Moonlight <button class="demo-btn" onclick="searchDemo('Moonlight')">Try</button></li>
+                        <li>The Grand Budapest Hotel <button class="demo-btn" onclick="searchDemo('The Grand Budapest Hotel')">Try</button></li>
+                    </ul>
+                </div>
+
+                <div class="demo-card">
+                    <h3>Classic Cinema</h3>
+                    <ul class="demo-list">
+                        <li>Casablanca <button class="demo-btn" onclick="searchDemo('Casablanca')">Try</button></li>
+                        <li>2001: A Space Odyssey <button class="demo-btn" onclick="searchDemo('2001: A Space Odyssey')">Try</button></li>
+                        <li>Citizen Kane <button class="demo-btn" onclick="searchDemo('Citizen Kane')">Try</button></li>
+                        <li>Vertigo <button class="demo-btn" onclick="searchDemo('Vertigo')">Try</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Remove active from all tabs and buttons
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            
+            // Activate selected tab and button
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function searchDemo(movieTitle) {
+            switchTab('discover');
+            document.getElementById('movie-input').value = movieTitle;
+            getRecommendations();
+        }
+
+        function getRecommendations() {
+    const movie = document.getElementById('movie-input').value.trim();
+    if (!movie) return;
+
+    const loading = document.getElementById('loading');
+    const recSection = document.getElementById('recommendations-section');
+    const recList = document.getElementById('recommendation-list');
+    const recCount = document.getElementById('rec-count');
+
+    loading.classList.add('show');
+    recSection.style.display = 'none';
+
+    fetch(`/recommend_by_movie?movie=${encodeURIComponent(movie)}`)
+        .then(res => res.json())
+        .then(data => {
+            loading.classList.remove('show');
+
+            if (data.error) {
+                recList.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Movie not found</h3>
+                        <p>Try a different title or check the spelling</p>
+                    </div>
+                `;
+                recCount.textContent = '0';
+            } else {
+                recList.innerHTML = '';
+                data.forEach(movie => {
+                    const matchPercent = Math.round(movie.Correlation * 100);
+                    const posterURL = movie.poster || ''; // fallback to empty if missing
+
+                    recList.innerHTML += `
+                        <div class="movie-card">
+                            <div class="movie-poster">
+                                <img src="${posterURL}" alt="${movie.title}" style="width:100%; height:100%; object-fit: cover; border-radius: 12px;" />
+                            </div>
+                            <div class="movie-info">
+                                <div class="movie-title">${movie.title}</div>
+                                <div class="movie-meta">
+                                    <span class="correlation">${matchPercent}% match</span>
+                                    <span>Score: ${movie.Correlation.toFixed(3)}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                recCount.textContent = data.length;
+            }
+
+            recSection.style.display = 'block';
+        })
+        .catch(error => {
+            loading.classList.remove('show');
+            console.error('Error:', error);
+        });
+}
+
+
+        function loadPopularMovies() {
+            fetch('/popular_movies')
+                .then(res => res.json())
+                .then(data => {
+                    const list = document.getElementById('popular-movies-list');
+                    const count = document.getElementById('popular-count');
+                    
+                    list.innerHTML = '';
+                    data.forEach(movie => {
+                        const stars = Math.round(movie.rating);
+                        const poster = movie.poster && movie.poster !== "N/A"
+                            ? `background-image: url('${movie.poster}'); background-size: cover; background-position: center;`
+                            : (() => {
+                                const posterColors = ['#ff4757', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#786fa6', '#f8b500'];
+                                const randomColor = posterColors[Math.floor(Math.random() * posterColors.length)];
+                                return `background: linear-gradient(45deg, ${randomColor}, ${randomColor}aa);`;
+                            })();
+
+                        list.innerHTML += `
+                            <div class="movie-card">
+                                <div class="movie-poster" style="${poster}"></div>
+                                <div class="movie-info">
+                                    <div class="movie-title">${movie.title}</div>
+                                    <div class="movie-meta">
+                                        <span class="rating">
+                                            <span>${movie.rating.toFixed(1)}</span>
+                                            <span style="color: #ff4757;">★</span>
+                                        </span>
+                                        <span>${movie["num of ratings"] || 0} reviews</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    count.textContent = data.length;
+                })
+                .catch(error => {
+                    console.error('Error loading popular movies:', error);
+                });
+        }
+
+        // Enter key support
+        document.getElementById('movie-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                getRecommendations();
+            }
+        });
+
+        // Initialize
+        window.onload = loadPopularMovies;
+    </script>
+
+   
+
+</body>
+</html>
